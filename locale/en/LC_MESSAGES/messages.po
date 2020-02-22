@@ -43,6 +43,9 @@ msgstr "Temperature"
 msgid "Apparent temperature"
 msgstr "Apparent temperature"
 
+msgid "Precip probability"
+msgstr "Precip probability"
+
 msgid "Dew point"
 msgstr "Dew point"
 

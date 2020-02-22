@@ -43,6 +43,9 @@ msgstr "温度"
 msgid "Apparent temperature"
 msgstr "体感温度"
 
+msgid "Precip probability"
+msgstr "降水確率"
+
 msgid "Dew point"
 msgstr "露点"
 

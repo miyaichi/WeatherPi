@@ -46,7 +46,7 @@ def adjust_unit(values, condition, units):
     value = float(value)
     if "temperature" in condition.lower() or condition == "dewPoint":
         return value if units == "si" else Utils.fahrenheit(value)
-    if condition == "humidity":
+    if condition in ("humidity", "precipProbability"):
         return value * 100
     if condition in ("windSpeed", "windGust"):
         return round(Utils.kilometer(value) if units == "si" else value, 1)
