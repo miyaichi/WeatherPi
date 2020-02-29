@@ -37,6 +37,7 @@ class DHT(TemperatureModule):
         "sensor": "DHT11",
         "pin": 14,
         "correction_value": -8,
+        "logfile": "/var/log/sensor.csv",
         "graph_rect": [x, y, width, height]
       }
      }

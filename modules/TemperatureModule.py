@@ -3,6 +3,7 @@
 """
 import datetime
 import logging
+import os
 import numpy as np
 from modules.WeatherModule import WeatherModule, Utils
 from modules.RepeatedTimer import RepeatedTimer
@@ -55,6 +56,13 @@ class TemperatureModule(WeatherModule):
         self.temperatures = [np.nan] * self.window_size
         self.humidities = [np.nan] * self.window_size
 
+        # logging setup
+        if "logfile" in config:
+            self.logfile = config["logfile"]
+            if not os.path.isfile(self.logfile):
+                with open(self.logfile, mode="w") as f:
+                    f.write("Date,Temperature,Humidity¥n")
+
         # glaph module setup
         self.graph_module = None
         if "graph_rect" in config:
@@ -89,9 +97,16 @@ class TemperatureModule(WeatherModule):
                     celsius if self.units ==
                     "si" else Utils.fahrenheit(celsius))
                 self.temperatures = self.temperatures[1:] + [celsius]
+            else:
+                celsius = None
             if self.humidities is not None:
                 humidity = np.nan if humidity is None else float(humidity)
                 self.humidities = self.humidities[1:] + [humidity]
+            else:
+                humidity = None
+            if self.logfile:
+                with open(self.logfile, mode="a") as f:
+                    f.write("{},{},{}\n".format(dt, celsius, humidity))
 
         # Has the value changed
         hash_value = self.sensor_thread.get_hash_value()

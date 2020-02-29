@@ -46,6 +46,7 @@ class IrMagitianT(TemperatureModule):
       "config": {
         "rect": [x, y, width, height],
         "correction_value": -10,
+        "logfile": "/var/log/sensor.csv",
         "graph_rect": [x, y, width, height]
       }
      }

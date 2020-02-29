@@ -54,6 +54,7 @@ class NatureRemo(TemperatureModule):
         "token": "<access tokens to access Nature API>"
         "name": "<device name>",
         "correction_value": 0.2,
+        "logfile": "/var/log/sensor.csv",
         "graph_rect": [x, y, width, height]
       }
      }

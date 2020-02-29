@@ -130,6 +130,7 @@ class TEMPer(TemperatureModule):
       "config": {
         "rect": [x, y, width, height],
         "correction_value": -2,
+        "logfile": "/var/log/sensor.csv",
         "graph_rect": [x, y, width, height]
       }
      }
