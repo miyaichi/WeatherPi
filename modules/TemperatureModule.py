@@ -57,6 +57,7 @@ class TemperatureModule(WeatherModule):
         self.humidities = [np.nan] * self.window_size
 
         # logging setup
+        self.logfile = None
         if "logfile" in config:
             self.logfile = config["logfile"]
             if not os.path.isfile(self.logfile):
