@@ -20,7 +20,7 @@ Weather Station for Raspberry Pi and Small LCDs
 
 fig: 480x320 en
 
-<img width="240" alt="240x320 en" src="https://user-images.githubusercontent.com/129797/56856807-9f9a9200-699d-11e9-8730-7571c7249ea7.png">
+<img width="240" alt="240x320 en" src="https://user-images.githubusercontent.com/129797/78632595-64f1e700-78da-11ea-8000-41086a8c2594.png">
 
 fig: 240x320 en
 
@@ -169,7 +169,7 @@ You can change the display language of dates and information.
 fig 480x320 ja
 
 
-<img width="240" alt="240x320 ja" src="https://user-images.githubusercontent.com/129797/56856844-c0171c00-699e-11e9-9a83-4522546b8d0f.png">
+<img width="240" alt="240x320 ja" src="https://user-images.githubusercontent.com/129797/78632623-79ce7a80-78da-11ea-8cb2-0de0656f017e.png">
 
 fig 240x320 ja
 
