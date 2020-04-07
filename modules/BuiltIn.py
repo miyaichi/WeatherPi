@@ -2,6 +2,7 @@
 """Built-in modules
 """
 
+import datetime
 import logging
 import time
 from modules.WeatherModule import WeatherModule, Utils
@@ -15,11 +16,7 @@ class Alerts(WeatherModule):
         if weather is None:
             message = "Waiting data..."
         else:
-            if updated:
-                message = weather["alerts"][
-                    "title"] if "alerts" in weather else ""
-            else:
-                return
+            return
 
         self.clear_surface()
         if message:
@@ -89,32 +86,31 @@ class Weather(WeatherModule):
         if weather is None or not updated:
             return
 
-        currently = weather["currently"]
-        daily = weather["daily"]["data"][0]
+        current = weather["current"]
+        daily = weather["daily"][0]
 
-        short_summary = currently["summary"]
-        icon = currently["icon"]
-        temperature = currently["temperature"]
-        humidity = currently["humidity"]
-        apparent_temperature = currently["apparentTemperature"]
-        pressure = currently["pressure"]
-        uv_index = currently["uvIndex"]
-        long_summary = daily["summary"]
-        temperature_high = daily["temperatureHigh"]
-        temperature_low = daily["temperatureLow"]
+        short_summary = _(current["weather"][0]["main"])
+        icon = current["weather"][0]["icon"]
+        temperature = current["temp"]
+        humidity = current["humidity"]
+        feels_like = current["feels_like"]
+        pressure = current["pressure"]
+        uv_index = int(current["uvi"])
+        long_summary = daily["weather"][0]["description"]
+        temperature_high = daily["temp"]["max"]
+        temperature_low = daily["temp"]["min"]
 
         heat_color = Utils.heat_color(temperature, humidity, self.units)
         uv_color = Utils.uv_color(uv_index)
         weather_icon = Utils.weather_icon(icon, self.icon_size)
 
         temperature = Utils.temperature_text(int(temperature), self.units)
-        apparent_temperature = Utils.temperature_text(
-            int(apparent_temperature), self.units)
+        feels_like = Utils.temperature_text(int(feels_like), self.units)
         temperature_low = Utils.temperature_text(int(temperature_low),
                                                  self.units)
         temperature_high = Utils.temperature_text(int(temperature_high),
                                                   self.units)
-        humidity = Utils.percentage_text(int(humidity * 100))
+        humidity = Utils.percentage_text(humidity)
         uv_index = str(uv_index)
         pressure = Utils.pressure_text(int(pressure))
 
@@ -126,13 +122,11 @@ class Weather(WeatherModule):
                                   "medium",
                                   bold=True,
                                   max_lines=1)[0]
-        message2 = "{} {}   {} {} {} {}".format(_("Feel Like"),
-                                                apparent_temperature,
+        message2 = "{} {}   {} {} {} {}".format(_("Feels Like"), feels_like,
                                                 _("Low"), temperature_low,
                                                 _("High"), temperature_high)
         if self.text_size(message2, "small")[0] > text_width:
-            message2 = "Feel {}  {} - {}".format(apparent_temperature,
-                                                 temperature_low,
+            message2 = "Feel {}  {} - {}".format(feels_like, temperature_low,
                                                  temperature_high)
         message3 = "{} {}  {} {}  {} {}".format(_("Humidity"), humidity,
                                                 _("Pressure"), pressure,
@@ -177,12 +171,13 @@ class DailyWeatherForecast(WeatherModule):
         if weather is None or not updated:
             return
 
-        daily = weather["daily"]["data"][self.day]
-        temperature_high = daily["temperatureHigh"]
-        temperature_low = daily["temperatureLow"]
+        daily = weather["daily"][self.day]
+        temperature_high = daily["temp"]["max"]
+        temperature_low = daily["temp"]["min"]
+        icon = daily["weather"][0]["icon"]
 
-        weather_icon = Utils.weather_icon(daily["icon"], self.icon_size)
-        day_of_week = Utils.strftime(daily["time"], "%a")
+        weather_icon = Utils.weather_icon(icon, self.icon_size)
+        day_of_week = Utils.strftime(daily["dt"], "%a")
         temperature_low = Utils.temperature_text(int(temperature_low),
                                                  self.units)
         temperature_high = Utils.temperature_text(int(temperature_high),
@@ -238,13 +233,13 @@ class SunriseSuset(WeatherModule):
         if weather is None or not updated:
             return
 
-        daily = weather["daily"]["data"]
-        sunrise = daily[0]["sunriseTime"]
-        sunset = daily[0]["sunsetTime"]
+        current = weather["current"]
+        sunrise = current["sunrise"]
+        sunset = current["sunset"]
 
         surise = "{} \u2197".format(Utils.strftime(sunrise, "%H:%M"))
         sunset = "\u2198 {}".format(Utils.strftime(sunset, "%H:%M"))
-        sun_icon = Utils.weather_icon("clear-day", self.icon_size)
+        sun_icon = Utils.weather_icon("01d", self.icon_size)
 
         self.clear_surface()
         self.draw_image(sun_icon, ((self.rect.width - self.icon_size) / 2,
@@ -269,16 +264,18 @@ class MoonPhase(WeatherModule):
         if weather is None or not updated:
             return
 
-        daily = weather["daily"]["data"]
+        current = weather["current"]
+        dt = datetime.datetime.fromtimestamp(int(current["dt"]))
+        moon_age = (
+            ((dt.year - 11) % 19) * 11 +
+            [0, 2, 0, 2, 2, 4, 5, 6, 7, 8, 9, 10][dt.month - 1] + dt.day) % 30
 
-        moon_phase = round((float(daily[0]["moonPhase"]) * 100 / 3.57) + 0.25,
-                           1)
-        moon_icon = Utils.moon_icon(moon_phase, self.icon_size)
-        moon_phase = str(moon_phase)
+        moon_icon = Utils.moon_icon(moon_age, self.icon_size)
+        moon_age = str(moon_age)
 
         self.clear_surface()
         self.draw_image(moon_icon, ((self.rect.width - self.icon_size) / 2, 5))
-        self.draw_text(moon_phase, (0, self.rect.height - 20),
+        self.draw_text(moon_age, (0, self.rect.height - 20),
                        "small",
                        "white",
                        align="center")
@@ -297,20 +294,16 @@ class Wind(WeatherModule):
         if weather is None or not updated:
             return
 
-        currently = weather["currently"]
-        wind_speed = currently["windSpeed"]
-        wind_bearing = currently["windBearing"]
+        daily = weather["daily"][0]
+        wind_speed = daily["wind_speed"]
+        wind_deg = daily["wind_deg"]
 
-        # The wind speed in miles per hour.
-        if self.units == "si":
-            wind_speed = round(float(wind_speed) * 1.609344, 1)
-        wind_icon = Utils.wind_arrow_icon(wind_bearing, self.icon_size)
-
+        wind_icon = Utils.wind_arrow_icon(wind_deg, self.icon_size)
         wind_speed = Utils.speed_text(wind_speed, self.units)
-        wind_bearing = Utils.wind_bearing_text(wind_bearing)
+        wind_deg = Utils.wind_bearing_text(wind_deg)
 
         self.clear_surface()
-        self.draw_text(wind_bearing, (0, 5), "small", "white", align="center")
+        self.draw_text(wind_deg, (0, 5), "small", "white", align="center")
         self.draw_image(wind_icon,
                         ((self.rect.width - self.icon_size) / 2, 20 +
                          (self.rect.height - 40 - self.icon_size) / 2))

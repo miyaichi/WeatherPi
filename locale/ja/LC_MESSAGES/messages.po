@@ -19,7 +19,7 @@ msgstr ""
 msgid "Indoor"
 msgstr "室内"
 
-msgid "Feel Like"
+msgid "Feels Like"
 msgstr "体感温度"
 
 msgid "Low"
@@ -37,14 +37,11 @@ msgstr "気圧"
 msgid "UVindex"
 msgstr "UVインデックス"
 
-msgid "Temperature"
+msgid "Temp"
 msgstr "温度"
 
-msgid "Apparent temperature"
+msgid "Feel like"
 msgstr "体感温度"
-
-msgid "Precip probability"
-msgstr "降水確率"
 
 msgid "Dew point"
 msgstr "露点"
@@ -52,11 +49,8 @@ msgstr "露点"
 msgid "Wind speed"
 msgstr "風速"
 
-msgid "Uv index"
+msgid "Uvi"
 msgstr "UVインデックス"
-
-msgid "Ozone"
-msgstr "オゾン"
 
 msgid "NNE"
 msgstr "北北東"
@@ -105,3 +99,48 @@ msgstr "北北西"
 
 msgid "N"
 msgstr "北"
+
+msgid "Thunderstorm"
+msgstr "竜巻"
+
+msgid "Drizzle"
+msgstr "霧雨"
+
+msgid "Rain"
+msgstr "雨"
+
+msgid "Snow"
+msgstr "雪"
+
+msgid "Mist"
+msgstr "霧"
+
+msgid "Smoke"
+msgstr "煙"
+
+msgid "Haze"
+msgstr "もや"
+
+msgid "Dust"
+msgstr "ほこり"
+
+msgid "Fog"
+msgstr "霧"
+
+msgid "Sand"
+msgstr "砂"
+
+msgid "Ash"
+msgstr "灰"
+
+msgid "Squall"
+msgstr "スコール"
+
+msgid "Tornado"
+msgstr "竜巻"
+
+msgid "Clear"
+msgstr "晴れ"
+
+msgid "Clouds"
+msgstr "曇り"

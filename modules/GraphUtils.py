@@ -62,8 +62,9 @@ def _draw_2axis_graph(screen, surface, rect, times, y1, ylabel1, y2, ylabel2):
         ax1.xaxis.set_minor_locator(HourLocator(interval=6))
         ax1.xaxis.set_major_formatter(DateFormatter("%m-%d"))
     else:
-        ax1.xaxis.set_major_locator(HourLocator())
-        ax1.xaxis.set_major_formatter(DateFormatter("%H"))
+        ax1.xaxis.set_major_locator(HourLocator(interval=24))
+        ax1.xaxis.set_minor_locator(HourLocator(interval=6))
+        ax1.xaxis.set_major_formatter(DateFormatter("%m-%d"))
 
     # convert to pygame image
     f = io.BytesIO()

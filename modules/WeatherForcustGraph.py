@@ -12,17 +12,14 @@ def check_condition(block, condition):
     """check block and condition
     """
     hourly = [
-        "precipIntensity", "precipProbability", "temperature",
-        "apparentTemperature", "dewPoint", "humidity", "pressure", "windSpeed",
-        "windGust", "cloudCover", "uvIndex", "visibility", "ozone"
+        "temp", "feels_like", "pressure", "humidity", "dew_point", "clouds",
+        "wind_speed", "wind_deg"
     ]
     daily = [
-        "precipIntensity", "precipIntensityMax", "precipProbability",
-        "temperatureHigh", "temperatureLow", "apparentTemperatureHigh",
-        "apparentTemperatureLow", "dewPoint", "humidity", "pressure",
-        "windSpeed", "windGust", "cloudCover", "uvIndex", "uvIndexTime",
-        "visibility", "ozone", "temperatureMin", "temperatureMax",
-        "apparentTemperatureMin", "apparentTemperatureMax"
+        "temp.day", "temp.min", "temp.max", "temp.night", "temp.eve",
+        "temp.morn", "feels_like.day", "feels_like.night", "feels_like.eve",
+        "feels_like.morn", "pressure", "humidity", "dew_point", "clouds",
+        "wind_speed", "wind_deg", "clouds", "rain", "uvi"
     ]
     if condition:
         if block == "hourly":
@@ -40,17 +37,26 @@ def check_condition(block, condition):
 def adjust_unit(values, condition, units):
     """adjust values units
     """
-    value = values[condition]
-    if condition == "time":
+    value = values
+    for key in condition.split("."):
+        value = value[key] if key in value else None
+    if condition == "dt":
         return datetime.datetime.fromtimestamp(value)
-    value = float(value)
-    if "temperature" in condition.lower() or condition == "dewPoint":
-        return value if units == "si" else Utils.fahrenheit(value)
-    if condition in ("humidity", "precipProbability"):
-        return value * 100
-    if condition in ("windSpeed", "windGust"):
-        return round(Utils.kilometer(value) if units == "si" else value, 1)
+    if value is not None:
+        value = float(value)
+    if condition.startswith("temp") or condition == "dew_point":
+        return value if units == "metric" else Utils.fahrenheit(value)
+    if condition in ("wind_speed", "wind_deg"):
+        return round(Utils.kilometer(value) if units == "metric" else value, 1)
     return value
+
+
+def label_name(condition):
+    """format label name
+    """
+    label = condition.replace("_", " ").split(".")
+    label[0] = label[0].capitalize()
+    return " ".join(label)
 
 
 class WeatherForcustGraph(WeatherModule):
@@ -66,23 +72,21 @@ class WeatherForcustGraph(WeatherModule):
       "config": {
         "rect": [x, y, width, height],
         "block": "hourly",
-        "conditions": ["temperature", "humidity"]
+        "conditions": ["temp", "humidity"]
       }
      }
 
     Available weather conditions is following:
         hourly:
-            temperature, apparentTemperature, dewPoint, humidity,
-            pressure, windSpeed, uvIndex, ozone
+            temp, feels_like, pressure, humidity, dew_point, clouds,
+            wind_speed, wind_deg
         daily:
-            precipIntensity, precipIntensityMax, precipProbability,
-            temperatureHigh, temperatureLow, apparentTemperatureHigh,
-            apparentTemperatureLow, dewPoint, humidity, pressure,
-            windSpeed, windGust, cloudCover, uvIndex, uvIndexTime,
-            visibility, ozone, temperatureMin, temperatureMax,
-            apparentTemperatureMin, apparentTemperatureMax
+            temp.day, temp.min, temp.max, temp.night, temp.eve,
+            temp.morn, feels_like.day, feels_like.night, feels_like.eve,
+            feels_like.morn, pressure, humidity, dew_point, clouds,
+            wind_speed, wind_deg, clouds, rain, uvi
 
-        https://darksky.net/dev/docs
+        https://openweathermap.org/api/one-call-api
     """
 
     def __init__(self, fonts, location, language, units, config):
@@ -106,26 +110,20 @@ class WeatherForcustGraph(WeatherModule):
         if weather is None or not updated:
             return
 
-        data = weather[self.block]["data"]
-        times = list(map(lambda x: adjust_unit(x, "time", self.units), data))
+        data = weather[self.block]
+        times = list(map(lambda x: adjust_unit(x, "dt", self.units), data))
+        y1 = ylabel1 = None
         if self.conditions[0]:
             y1 = list(
                 map(lambda x: adjust_unit(x, self.conditions[0], self.units),
                     data))
-            ylabel1 = "".join(
-                map(lambda x: x if x.islower() else " " + x,
-                    self.conditions[0])).capitalize()
-        else:
-            y1 = ylabel1 = None
+            ylabel1 = label_name(self.conditions[0])
+        y2 = ylabel2 = None
         if self.conditions[1]:
             y2 = list(
                 map(lambda x: adjust_unit(x, self.conditions[1], self.units),
                     data))
-            ylabel2 = "".join(
-                map(lambda x: x if x.islower() else " " + x,
-                    self.conditions[1])).capitalize()
-        else:
-            y2 = ylabel2 = None
+            ylabel2 = label_name(self.conditions[1])
 
         self.clear_surface()
         GraphUtils.set_font(self.fonts["name"])

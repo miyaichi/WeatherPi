@@ -3,10 +3,20 @@
 Weather Station for Raspberry Pi and Small LCDs  
 (Raspberry Piと小型液晶向けのウェザーステーション)
 
+---
+
+**Notice**: DarkSky has announced the suspension of new registrations for its APIs and a close at the end of 2021. Accordingly, this repository has been modified to use the OpenWeather API.　DarkSky version is saved in "Dark_Sky_API_Version" branch, so please refer to it if you need.
+
+**注意**: DarkSkyはAPIの新規登録を停止し、2021年末で停止することを発表しました。それに伴いこのリポジトリはOpenWeather APIを利用するよう変更しています。DarkSky版は"Dark_Sky_API_Version"ブランチに保存してありますので、必要であれば参照してください。
+
+[Dark Sky Has a New Home](https://blog.darksky.net/dark-sky-has-a-new-home/)
+
+---
+
 ![Front View](https://user-images.githubusercontent.com/129797/56935584-e8348580-6b2c-11e9-940a-002c280885bd.png)
 
 
-<img width="480" alt="480x320 en" src="https://user-images.githubusercontent.com/129797/56856836-95c55e80-699e-11e9-8d4d-7422eef36732.png">
+<img width="480" alt="480x320 en" src="https://user-images.githubusercontent.com/55722703/78542390-138e1d00-7832-11ea-85d0-97016a827f41.png">
 
 fig: 480x320 en
 
@@ -52,20 +62,19 @@ cp example.480x320.config.json config.json
 #### config.json
 | Name                    |          | Default                                  | Description                                                                                                        |
 | ----------------------- | -------- | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| darksky_api_key         | required |                                          | **[DarkSky API Key](https://darksky.net/dev)**                                                                     |
-| google_api_key          | optional |                                          | [Google Geocoding API darksky_api_key](https://developers.google.com/maps/documentation/geocoding/start)           |
+| openweather_appid       | required |                                          | **[OpenWeather API Key](https://openweathermap.org/api)**                                                          |
+| google_api_key          | optional |                                          | [Google Geocoding API key](https://developers.google.com/maps/documentation/geocoding/start)           |
 | address                 | optional |                                          | The address of a location. <br> latitude and longitude can be omitted if google_api_key and address are specified. |
 | latitude <br> longitude | required |                                          | The latitude and longitude of a location (in decimal degrees). Positive is east, negative is west.                 |
 | locale                  | required | en_US.UTF-8                              | Locale. Specify the display language of time and weather information.                                              |
-| units                   | required | si                                       | Unit of weather　information.                                                                                      |
+| units                   | required | metric                                   | Unit of weather　information. (imperial: Fahrenheit, metric: Celsius)                                              |
 | SDL_FBDEV               | required | /dev/fb1                                 | Frame buffer device to use in the linux fbcon driver, instead of /dev/fb0.                                         |
 | display                 | required |                                          | Display size. [Width, Height]                                                                                      |
 | fonts.name              | required | Sans                                     | Font name.                                                                                                         |
 | fonts.size              | required | {"large": 30, "medium": 22, "small": 14} | Font size list. (Style name and point)                                                                             |
 
 
-* for language-support, units, latitude and longitude please refer to -> **[DarkSky API Docs](https://darksky.net/dev/docs/forecast)**
-
+* for language-support, units, latitude and longitude please refer to -> **[OpenWeather API Docs](https://openweathermap.org/api/one-call-api)**
 
 ### setup the services
 ```bash
@@ -128,19 +137,23 @@ sudo pip3 install matplotlib
 ```
 
 ## Customize weather icons
-By default, the DarkSky icon is resized to display, but you can change it to any icon you like.
-To change the icons, place the following 10 icons in the icons folder:  
-(デフォルトではDarkSkyのアイコンを表示しますが、iconsフォルダに以下の10個のファイルを用意すれば、変更することができます。)
+By default, the OpenWeather icon is resized to display, but you can change it to any icon you like.
+To change the icons, place the following 18 icons in the icons folder:  
+(デフォルトではOpenWeatherのアイコンを表示しますが、iconsフォルダに以下の18個のファイルを用意すれば、変更することができます。)
 
-* clear-day.png, clear-night.png, rain.png, snow.png, sleet.png, wind.png, fog.png, cloudy.png, partly-cloudy-day.png, partly-cloudy-night.png
+* 01d.pnng, 01n.png, 02d.pnng, 02n.png, 03d.pnng, 03n.png, 04d.pnng, 04n.png, 09d.pnng, 09n.png, 10d.pnng, 10n.png, 11d.pnng, 11n.png, 13d.pnng, 13n.png, 50d.pnng, 50n.png,
 
-| Name            | Default                                                                          | Name                    | Default                                                                                  |
-| --------------- | -------------------------------------------------------------------------------- | ----------------------- | ---------------------------------------------------------------------------------------- |
-| clear-day.png   | <img width="100" src="https://darksky.net/images/weather-icons/clear-day.png">   | wind.png                | <img width="100" src="https://darksky.net/images/weather-icons/wind.png">                |
-| clear-night.png | <img width="100" src="https://darksky.net/images/weather-icons/clear-night.png"> | fog.png                 | <img width="100" src="https://darksky.net/images/weather-icons/fog.png">                 |
-| rain.png        | <img width="100" src="https://darksky.net/images/weather-icons/rain.png">        | cloudy.png              | <img width="100" src="https://darksky.net/images/weather-icons/cloudy.png">              |
-| snow.png        | <img width="100" src="https://darksky.net/images/weather-icons/snow.png">        | partly-cloudy-day.png   | <img width="100" src="https://darksky.net/images/weather-icons/partly-cloudy-day.png">   |
-| sleet.png       | <img width="100" src="https://darksky.net/images/weather-icons/sleet.png">       | partly-cloudy-night.png | <img width="100" src="https://darksky.net/images/weather-icons/partly-cloudy-night.png"> |
+| Day icon name | Default                                                             | Night icon name | Default                                                             | Description      |
+| ------------- | ------------------------------------------------------------------- | --------------- | ------------------------------------------------------------------- | ---------------- |
+| 01d.png       | <img width="100" src="http://openweathermap.org/img/wn/01d@2x.png"> | 01n.png         | <img width="100" src="http://openweathermap.org/img/wn/01n@2x.png"> | clear sky        |
+| 02d.png       | <img width="100" src="http://openweathermap.org/img/wn/02d@2x.png"> | 02n.png         | <img width="100" src="http://openweathermap.org/img/wn/02n@2x.png"> | few clouds       |
+| 03d.png       | <img width="100" src="http://openweathermap.org/img/wn/03d@2x.png"> | 03n.png         | <img width="100" src="http://openweathermap.org/img/wn/03n@2x.png"> | scattered clouds |
+| 04d.png       | <img width="100" src="http://openweathermap.org/img/wn/04d@2x.png"> | 04n.png         | <img width="100" src="http://openweathermap.org/img/wn/04n@2x.png"> | broken clouds    |
+| 09d.png       | <img width="100" src="http://openweathermap.org/img/wn/09d@2x.png"> | 09n.png         | <img width="100" src="http://openweathermap.org/img/wn/09n@2x.png"> | shower rain      |
+| 10d.png       | <img width="100" src="http://openweathermap.org/img/wn/10d@2x.png"> | 10n.png         | <img width="100" src="http://openweathermap.org/img/wn/10n@2x.png"> | rain             |
+| 11d.png       | <img width="100" src="http://openweathermap.org/img/wn/11d@2x.png"> | 11n.png         | <img width="100" src="http://openweathermap.org/img/wn/11n@2x.png"> | thunderstorm     |
+| 13d.png       | <img width="100" src="http://openweathermap.org/img/wn/13d@2x.png"> | 13n.png         | <img width="100" src="http://openweathermap.org/img/wn/13n@2x.png"> | snow             |
+| 50d.png       | <img width="100" src="http://openweathermap.org/img/wn/50d@2x.png"> | 50n.png         | <img width="100" src="http://openweathermap.org/img/wn/50n@2x.png"> | mist             |
 
 
 
@@ -150,7 +163,7 @@ You can change the display language of dates and information.
 (日付と情報の表示言語を変更することができます。)
 
 
-<img width="480" alt="480x320 ja" src="https://user-images.githubusercontent.com/129797/56856869-5a775f80-699f-11e9-9c37-ba41ab48d696.png">
+<img width="480" alt="480x320 ja" src="https://user-images.githubusercontent.com/55722703/78542573-53ed9b00-7832-11ea-80c7-8b30fa0367f1.png">
 
 
 fig 480x320 ja
@@ -237,8 +250,8 @@ Temperature and humidity sensors and weather forecast data can be displayed in a
   ```
 
 * WeatherGorcustGraph module
-  It can graphically displays the weather data for the next 48 hours or 7 days provided by DarkSky. To plot the graph, define up to two weather condition names with the conditions parameter in the module's config.
-  （DarkSkyが提供する今後48時間または7日間の天気データをグラフィカルに表示できます。グラフを表示するには、モジュールのconfigにconditionsパラメータで気象条件名を最大２つまで定義します。）
+  It can graphically displays the weather data for the next 48 hours or 7 days provided by OpenWeather. To plot the graph, define up to two weather condition names with the conditions parameter in the module's config.
+  （OpenWeatherが提供する今後48時間または7日間の天気データをグラフィカルに表示できます。グラフを表示するには、モジュールのconfigにconditionsパラメータで気象条件名を最大２つまで定義します。）
 
   ![fig](https://user-images.githubusercontent.com/129797/74575281-b4e2ba80-4fc9-11ea-8b8b-72ca6b28c418.png)
 
@@ -267,13 +280,13 @@ Temperature and humidity sensors and weather forecast data can be displayed in a
         visibility, ozone, temperatureMin, temperatureMax,
         apparentTemperatureMin, "apparentTemperatureMax
 
-    Refer: https://darksky.net/dev/docs
+    Refer: **[OpenWeather API Docs](https://openweathermap.org/api/one-call-api)**
 
 ## Credit
 
 * [WeatherPi_TFT](https://github.com/LoveBootCaptain/WeatherPi_TFT) His wonderful software is the beginning of my project
 * [adafruit](https://github.com/adafruit) for [hardware](https://www.adafruit.com/) and [tutorials](https://learn.adafruit.com/)
-* [DarkSky / forecast.io](https://darksky.net) weather api and [documentation](https://darksky.net/dev/)
+* [OpenWeather](https://openweathermap.org/) weather api and [documentation](https://openweathermap.org/api/one-call-api)
 * [気象庁防災情報XMLフォーマット](http://xml.kishou.go.jp/)
 * [Google Fonts](https://fonts.google.com/)
 * [Google NotoFonts](https://www.google.com/get/noto/)

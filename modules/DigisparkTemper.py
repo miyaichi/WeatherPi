@@ -99,9 +99,9 @@ class DigisparkTemper(TemperatureModule):
         if not data_changed:
             return
 
-        color = Utils.heat_color(celsius, humidity, "si")
+        color = Utils.heat_color(celsius, humidity, "metric")
         temperature = Utils.temperature_text(
-            celsius if self.units == "si" else Utils.fahrenheit(celsius),
+            celsius if self.units == "metric" else Utils.fahrenheit(celsius),
             self.units)
         humidity = Utils.percentage_text(humidity)
 

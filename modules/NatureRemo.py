@@ -80,9 +80,9 @@ class NatureRemo(TemperatureModule):
             return
 
         color = Utils.heat_color(celsius, humidity,
-                                 "si") if humidity else "white"
+                                 "metric") if humidity else "white"
         temperature = Utils.temperature_text(
-            celsius if self.units == "si" else Utils.fahrenheit(celsius),
+            celsius if self.units == "metric" else Utils.fahrenheit(celsius),
             self.units)
         humidity = Utils.pressure_text(humidity) if humidity else None
 

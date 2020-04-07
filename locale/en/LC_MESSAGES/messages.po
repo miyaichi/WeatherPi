@@ -19,8 +19,8 @@ msgstr ""
 msgid "Indoor"
 msgstr "Indoor"
 
-msgid "Feel Like"
-msgstr "Feel Like"
+msgid "Feels Like"
+msgstr "Feels Like"
 
 msgid "Low"
 msgstr "Low"
@@ -37,14 +37,11 @@ msgstr "Pressure"
 msgid "UVindex"
 msgstr "UVindex"
 
-msgid "Temperature"
-msgstr "Temperature"
+msgid "Tempe"
+msgstr "Temp"
 
-msgid "Apparent temperature"
-msgstr "Apparent temperature"
-
-msgid "Precip probability"
-msgstr "Precip probability"
+msgid "Feel like"
+msgstr "Feel like"
 
 msgid "Dew point"
 msgstr "Dew point"
@@ -52,11 +49,8 @@ msgstr "Dew point"
 msgid "Wind speed"
 msgstr "Wind speed"
 
-msgid "Uv index"
+msgid "Uvi"
 msgstr "UV index"
-
-msgid "Ozone"
-msgstr "Ozone"
 
 msgid "NNE"
 msgstr "NNE"
@@ -105,3 +99,48 @@ msgstr "NNW"
 
 msgid "N"
 msgstr "N"
+
+msgid "Thunderstorm"
+msgstr "Thunderstorm"
+
+msgid "Drizzle"
+msgstr "Drizzle"
+
+msgid "Rain"
+msgstr "Rain"
+
+msgid "Snow"
+msgstr "Snow"
+
+msgid "Mist"
+msgstr "Mist"
+
+msgid "Smoke"
+msgstr "Smoke"
+
+msgid "Haze"
+msgstr "Haze"
+
+msgid "Dust"
+msgstr "Dust"
+
+msgid "Fog"
+msgstr "Fog"
+
+msgid "Sand"
+msgstr "Sand"
+
+msgid "Ash"
+msgstr "Ash"
+
+msgid "Squall"
+msgstr "Squall"
+
+msgid "Tornado"
+msgstr "Tornado"
+
+msgid "Clear"
+msgstr "Clear"
+
+msgid "Clouds"
+msgstr "Clouds"

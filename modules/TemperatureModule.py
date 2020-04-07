@@ -96,7 +96,7 @@ class TemperatureModule(WeatherModule):
             if self.temperatures is not None:
                 celsius = np.nan if celsius is None else float(
                     celsius if self.units ==
-                    "si" else Utils.fahrenheit(celsius))
+                    "metric" else Utils.fahrenheit(celsius))
                 self.temperatures = self.temperatures[1:] + [celsius]
             else:
                 celsius = None

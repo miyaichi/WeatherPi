@@ -1,5 +1,5 @@
 {
-  "darksky_api_key": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "openweather_appid": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
   "google_api_key": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
 
   "address": "",

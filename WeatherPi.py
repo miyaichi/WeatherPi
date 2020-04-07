@@ -23,18 +23,14 @@ from modules.BuiltIn import (Alerts, Clock, Location, Weather, WeatherForecast,
 from modules.RepeatedTimer import RepeatedTimer
 
 
-def weather_forecast(api_key, latitude, longitude, language, units):
-    """get weather forcast data using darksky api
+def weather_forecast(appid, latitude, longitude, language, units):
+    """get weather forcast data using openweather api
     """
     try:
         resopnse = requests.get(
-            "https://api.forecast.io/forecast/{}/{},{}".format(
-                api_key, latitude, longitude),
-            params={
-                "lang": language,
-                "units": units,
-                "exclude": "minutely,flags"
-            })
+            "https://api.openweathermap.org/data/2.5/onecall" +
+            "?appid={}&lat={}&lon={}&lang={}&units={}".format(
+                appid, latitude, longitude, language, units))
         resopnse.raise_for_status()
         return resopnse.json()
 
@@ -83,6 +79,7 @@ def main():
                         action="store_const",
                         const=True,
                         default=False)
+    parser.add_argument("--screenshot", "-s")
     args = parser.parse_args()
     logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO,
                         stream=sys.stdout,
@@ -116,7 +113,7 @@ def main():
         trans.install()
 
         # initialize address, latitude and longitude
-        if config["google_api_key"]:
+        if "google_api_key" in config and config["google_api_key"]:
             results = geocode(config["google_api_key"], language,
                               config["address"], config["latitude"],
                               config["longitude"])
@@ -130,8 +127,8 @@ def main():
 
         # start weather forecast thread
         timer_thread = RepeatedTimer(300, weather_forecast, [
-            config["darksky_api_key"], config["latitude"], config["longitude"],
-            language, config["units"]
+            config["openweather_appid"], config["latitude"],
+            config["longitude"], language, config["units"]
         ])
         timer_thread.start()
 
@@ -231,6 +228,8 @@ def main():
         logging.error(e, exc_info=True)
 
     finally:
+        if args.screenshot:
+            pygame.image.save(display, args.screenshot)
         if timer_thread:
             timer_thread.quit()
         for module in modules:

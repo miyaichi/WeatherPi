@@ -80,14 +80,14 @@ class Utils:
         """
         Format speed value to text
         """
-        return ("{}km/h" if units == "si" else "{}mi/h").format(value)
+        return ("{}km/h" if units == "metric" else "{}mi/h").format(value)
 
     @staticmethod
     def temperature_text(value, units):
         """
         Format temperature value to text
         """
-        return ("{}°c" if units == "si" else "{}°f").format(value)
+        return ("{}°c" if units == "metric" else "{}°f").format(value)
 
     @staticmethod
     def color(name):
@@ -145,7 +145,7 @@ class Utils:
             return color_x
 
         fahrenheit = Utils.fahrenheit(
-            temperature) if units == "si" else temperature
+            temperature) if units == "metric" else temperature
         celsius = Utils.celsius(Utils.heat_index(fahrenheit, humidity))
 
         color = Utils.color("white")
@@ -178,38 +178,11 @@ class Utils:
     def wind_bearing_text(angle):
         """Return wind bearig text
         """
-        if 11.25 < angle <= 33.75:
-            text = "NNE"
-        elif 33.75 < angle <= 56.25:
-            text = "NE"
-        elif 56.25 < angle <= 78.75:
-            text = "ENE"
-        elif 78.75 < angle <= 101.25:
-            text = "E"
-        elif 101.25 < angle <= 123.75:
-            text = "ESE"
-        elif 123.75 < angle <= 146.25:
-            text = "SE"
-        elif 146.25 < angle <= 168.75:
-            text = "SSE"
-        elif 168.75 < angle <= 191.25:
-            text = "S"
-        elif 191.25 < angle <= 213.75:
-            text = "SSW"
-        elif 213.75 < angle <= 236.25:
-            text = "SW"
-        elif 236.25 < angle <= 258.75:
-            text = "WSW"
-        elif 258.75 < angle <= 281.25:
-            text = "W"
-        elif 281.25 < angle <= 303.75:
-            text = "WNW"
-        elif 303.75 < angle <= 326.25:
-            text = "NW"
-        elif 326.25 < angle <= 348.75:
-            text = "NNW"
-        else:
-            text = "N"
+        bearing = [
+            "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "S", "SSW", "SW", "WSW",
+            "W", "WNW", "NW", "NNW", "N"
+        ]
+        text = bearing[int(angle / 22.5)]
         return _(text)
 
     @staticmethod
@@ -233,15 +206,9 @@ class Utils:
             else:
                 # get icons from DarkSky
                 response = requests.get(
-                    "https://darksky.net/images/weather-icons/{}.png".format(
-                        name))
+                    "http://openweathermap.org/img/wn/{}@2x.png".format(name))
                 response.raise_for_status()
                 image = pygame.image.load(io.BytesIO(response.content))
-
-            # replace color black to dimgray
-            pixels = pygame.PixelArray(image)
-            pixels.replace(pygame.Color("black"), pygame.Color("dimgray"))
-            del pixels
 
             # resize icon
             (width, height) = image.get_size()
@@ -292,7 +259,7 @@ class Utils:
 
     @staticmethod
     @lru_cache()
-    def wind_arrow_icon(wind_bearing, size):
+    def wind_arrow_icon(wind_deg, size):
         """Create a wind direction allow image
         """
         color = pygame.Color("white")
@@ -300,7 +267,7 @@ class Utils:
         height = 0.25 * size  # arrowhead height
 
         radius = size / 2
-        angle = (90 - wind_bearing) % 360
+        angle = (90 - wind_deg) % 180
         theta = angle / 360 * math.pi * 2
 
         tail = (radius + radius * math.cos(theta),

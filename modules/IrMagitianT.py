@@ -68,7 +68,7 @@ class IrMagitianT(TemperatureModule):
             return
 
         temparature = Utils.temperature_text(
-            celsius if self.units == "si" else Utils.fahrenheit(celsius),
+            celsius if self.units == "metric" else Utils.fahrenheit(celsius),
             self.units)
 
         message = temparature

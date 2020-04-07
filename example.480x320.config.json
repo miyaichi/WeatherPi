@@ -1,5 +1,5 @@
 {
-  "darksky_api_key": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "openweather_appid": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
   "google_api_key": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
 
   "address": "",
@@ -7,7 +7,7 @@
   "longitude": 139.667028,
 
   "locale": "en_US.UTF-8",
-  "units": "si",
+  "units": "metric",
 
   "SDL_FBDEV": "/dev/fb1",
   "display": [480, 320],
@@ -22,57 +22,52 @@
 
   "modules": [
     {
-      "module": "Clock",
-      "config": {
-        "rect": [0, 0, 140, 60]
-      }
-    },
-    {
-      "module": "Location",
-      "config": {
-        "rect": [140, 0, 340, 15]
-      }
-    },
-    {
       "module": "Alerts",
       "config": {
-        "rect": [140, 20, 340, 40]
+        "rect": [0, 0, 480, 20]
       }
     },
     {
       "module": "Weather",
       "config": {
-        "rect": [0, 60, 480, 100],
-        "icon_size": 100
+        "rect": [0, 20, 410, 120]
       }
     },
     {
       "module": "WeatherForecast",
       "config": {
-        "rect": [0, 160, 480, 80],
-        "forecast_days": 6,
-        "icon_size": 50
+        "rect": [0, 150, 480, 80],
+        "forecast_days": 6
       }
     },
     {
       "module": "SunriseSuset",
       "config": {
-        "rect": [0, 240, 80, 80],
-        "icon_size": 40
+        "rect": [0, 240, 80, 80]
       }
     },
     {
       "module": "MoonPhase",
       "config": {
-        "rect": [80, 240, 80, 80],
-        "icon_size": 50
+        "rect": [80, 240, 80, 80]
       }
     },
     {
       "module": "Wind",
       "config": {
-        "rect": [160, 240, 80, 80],
-        "icon_size": 30
+        "rect": [160, 240, 80, 80]
+      }
+    },
+    {
+      "module": "Clock",
+      "config": {
+        "rect": [320, 240, 160, 60]
+      }
+    },
+    {
+      "module": "Location",
+      "config": {
+        "rect": [320, 300, 160, 20]
       }
     }
   ]
