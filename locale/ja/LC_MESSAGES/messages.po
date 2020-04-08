@@ -140,7 +140,7 @@ msgid "Tornado"
 msgstr "竜巻"
 
 msgid "Clear"
-msgstr "晴れ"
+msgstr "晴"
 
 msgid "Clouds"
-msgstr "曇り"
+msgstr "曇"

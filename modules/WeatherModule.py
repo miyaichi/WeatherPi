@@ -204,7 +204,7 @@ class Utils:
                 # get icons from local folder
                 image = pygame.image.load(file)
             else:
-                # get icons from DarkSky
+                # get icons from OpwnWeather
                 response = requests.get(
                     "http://openweathermap.org/img/wn/{}@2x.png".format(name))
                 response.raise_for_status()

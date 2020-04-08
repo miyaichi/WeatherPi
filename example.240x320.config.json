@@ -7,7 +7,7 @@
   "longitude": 139.667028,
 
   "locale": "en_US.UTF-8",
-  "units": "si",
+  "units": "metric",
 
   "SDL_FBDEV": "/dev/fb1",
   "display": [240, 320],
