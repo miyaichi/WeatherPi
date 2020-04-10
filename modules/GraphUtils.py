@@ -39,9 +39,12 @@ def synchronized(wrapped):
 
 
 @synchronized
-def _draw_2axis_graph(screen, surface, rect, times, y1, ylabel1, y2, ylabel2):
+def _draw_2axis_graph(screen, surface, rect, times, y1, ylabel1, y2, ylabel2,
+                      title):
     # plot graph
     fig, ax1 = plt.subplots(figsize=(rect.width / dpi, rect.height / dpi))
+    if title:
+        plt.title(title)
     if y1 is not None:
         if ylabel1:
             ax1.yaxis.label.set_color(colormap(0))
@@ -57,7 +60,9 @@ def _draw_2axis_graph(screen, surface, rect, times, y1, ylabel1, y2, ylabel2):
             ax2.plot(times, y2, color=colormap(1))
 
     # setting tics
-    if (max(times) - min(times)).days > 1:
+    if (max(times) - min(times)).days > 7:
+        ax1.xaxis.set_major_formatter(DateFormatter("%m-%d"))
+    elif (max(times) - min(times)).days > 1:
         ax1.xaxis.set_major_locator(DayLocator())
         ax1.xaxis.set_minor_locator(HourLocator(interval=6))
         ax1.xaxis.set_major_formatter(DateFormatter("%m-%d"))
@@ -93,10 +98,17 @@ class GraphUtils:
             plt.rcParams["font.family"] = font
 
     @staticmethod
-    def draw_2axis_graph(screen, surface, rect, times, y1, ylabel1, y2,
-                         ylabel2):
+    def draw_2axis_graph(screen,
+                         surface,
+                         rect,
+                         times,
+                         y1,
+                         ylabel1,
+                         y2,
+                         ylabel2,
+                         title=None):
         """draw 2-axis graph in another thread
         """
         threading.Thread(target=_draw_2axis_graph,
                          args=(screen, surface, rect, times, y1, ylabel1, y2,
-                               ylabel2)).start()
+                               ylabel2, title)).start()
