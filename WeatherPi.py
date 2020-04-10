@@ -238,6 +238,7 @@ def main():
         if restart:
             logging.info("restarting..")
             os.execl(sys.executable, sys.executable, *sys.argv)
+        sys.exit()
 
 
 if __name__ == "__main__":

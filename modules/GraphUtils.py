@@ -106,6 +106,7 @@ class GraphUtils:
                          ylabel1,
                          y2,
                          ylabel2,
+                         *,
                          title=None):
         """draw 2-axis graph in another thread
         """
