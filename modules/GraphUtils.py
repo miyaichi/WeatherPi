@@ -40,7 +40,7 @@ def synchronized(wrapped):
 
 @synchronized
 def _draw_2axis_graph(screen, surface, rect, times, y1, ylabel1, y2, ylabel2,
-                      title):
+                      title, yscale1, yscale2):
     # plot graph
     fig, ax1 = plt.subplots(figsize=(rect.width / dpi, rect.height / dpi))
     if title:
@@ -49,6 +49,8 @@ def _draw_2axis_graph(screen, surface, rect, times, y1, ylabel1, y2, ylabel2,
         if ylabel1:
             ax1.yaxis.label.set_color(colormap(0))
             ax1.set_ylabel(ylabel1)
+        if yscale1:
+            ax1.set_yscale(yscale1)
         if sum(x is not np.nan for x in y1) > 0:
             ax1.plot(times, y1, color=colormap(0))
     if y2 is not None:
@@ -56,20 +58,20 @@ def _draw_2axis_graph(screen, surface, rect, times, y1, ylabel1, y2, ylabel2,
         if ylabel2:
             ax2.yaxis.label.set_color(colormap(1))
             ax2.set_ylabel(ylabel2)
+        if yscale2:
+            ax2.set_yscale(yscale2)
         if sum(x is not np.nan for x in y2) > 0:
             ax2.plot(times, y2, color=colormap(1))
 
     # setting tics
-    if (max(times) - min(times)).days > 7:
-        ax1.xaxis.set_major_formatter(DateFormatter("%m-%d"))
-    elif (max(times) - min(times)).days > 1:
-        ax1.xaxis.set_major_locator(DayLocator())
-        ax1.xaxis.set_minor_locator(HourLocator(interval=6))
-        ax1.xaxis.set_major_formatter(DateFormatter("%m-%d"))
-    else:
-        ax1.xaxis.set_major_locator(HourLocator(interval=24))
-        ax1.xaxis.set_minor_locator(HourLocator(interval=6))
-        ax1.xaxis.set_major_formatter(DateFormatter("%m-%d"))
+    ax1.xaxis.set_major_formatter(DateFormatter("%m-%d"))
+    if (max(times) - min(times)).days <= 7:
+        if (max(times) - min(times)).days > 1:
+            ax1.xaxis.set_major_locator(DayLocator())
+            ax1.xaxis.set_minor_locator(HourLocator(interval=6))
+        else:
+            ax1.xaxis.set_major_locator(HourLocator(interval=24))
+            ax1.xaxis.set_minor_locator(HourLocator(interval=6))
 
     # convert to pygame image
     f = io.BytesIO()
@@ -107,9 +109,11 @@ class GraphUtils:
                          y2,
                          ylabel2,
                          *,
-                         title=None):
+                         title=None,
+                         yscale1=None,
+                         yscale2=None):
         """draw 2-axis graph in another thread
         """
         threading.Thread(target=_draw_2axis_graph,
                          args=(screen, surface, rect, times, y1, ylabel1, y2,
-                               ylabel2, title)).start()
+                               ylabel2, title, yscale1, yscale2)).start()
