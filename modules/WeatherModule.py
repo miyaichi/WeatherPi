@@ -11,6 +11,8 @@ import sys
 from functools import lru_cache
 import requests
 import pygame
+import pygame.gfxdraw
+from PIL import Image
 
 
 class Utils:
@@ -202,21 +204,25 @@ class Utils:
             file = "{}/icons/{}.png".format(sys.path[0], name)
             if os.path.isfile(file):
                 # get icons from local folder
-                image = pygame.image.load(file)
+                image = Image.open(file)
             else:
                 # get icons from OpwnWeather
                 response = requests.get(
                     "http://openweathermap.org/img/wn/{}@2x.png".format(name))
                 response.raise_for_status()
-                image = pygame.image.load(io.BytesIO(response.content))
+                image = Image.open(io.BytesIO(response.content))
 
             # resize icon
-            (width, height) = image.get_size()
+            (width, height) = image.size
             if width >= height:
                 (width, height) = (size, int(size / width * height))
             else:
                 (width, height) = (int(size / width * height), size)
-            image = pygame.transform.scale(image, (width, height))
+            image = image.resize((width, height), Image.LANCZOS)
+
+            # convert pygame image
+            image = pygame.image.fromstring(image.tobytes(), image.size,
+                                            image.mode)
 
             logging.debug("weather icon %s %s loaded", name, size)
             return image
@@ -231,7 +237,9 @@ class Utils:
         """Create a moon phase image
         """
         image = pygame.Surface((size, size))
-        radius = int(size / 2)
+        image.fill(pygame.Color("black"))
+        image.set_colorkey(pygame.Color("black"))
+        radius = int((size - 1) / 2)
 
         # draw full moon
         pygame.draw.circle(image, pygame.Color("white"), (radius, radius),
@@ -253,6 +261,10 @@ class Utils:
             pygame.draw.line(image, pygame.Color("dimgray"), start, end)
             sum_x += 2 * x
             sum_length += end[0] - start[0]
+
+        # sharpening the edge of the moon
+        pygame.gfxdraw.aacircle(image, radius, radius, radius,
+                                pygame.Color("black"))
         logging.info("moon phase age: %s parcentage: %s", age,
                      round(100 - (sum_length / sum_x) * 100, 1))
         return image
@@ -262,7 +274,7 @@ class Utils:
     def wind_arrow_icon(wind_deg, size):
         """Create a wind direction allow image
         """
-        color = pygame.Color("white")
+        color = pygame.Color("White")
         width = 0.15 * size  # arrowhead width
         height = 0.25 * size  # arrowhead height
 
