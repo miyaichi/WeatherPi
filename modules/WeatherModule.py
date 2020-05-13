@@ -13,6 +13,7 @@ import requests
 import pygame
 import pygame.gfxdraw
 from PIL import Image
+from PIL import ImageDraw
 
 
 class Utils:
@@ -274,11 +275,12 @@ class Utils:
     def wind_arrow_icon(wind_deg, size):
         """Create a wind direction allow image
         """
+        _size = 100
         color = pygame.Color("White")
-        width = 0.15 * size  # arrowhead width
-        height = 0.25 * size  # arrowhead height
+        width = 0.15 * _size  # arrowhead width
+        height = 0.25 * _size  # arrowhead height
 
-        radius = size / 2
+        radius = _size / 2
         angle = (90 - wind_deg) % 180
         theta = angle / 360 * math.pi * 2
 
@@ -296,9 +298,17 @@ class Utils:
         right = (head[0] + unit_vector[1] * width - unit_vector[0] * height,
                  head[1] - unit_vector[0] * width - unit_vector[1] * height)
 
-        image = pygame.Surface((size, size))
-        pygame.draw.line(image, color, tail, head, 2)
-        pygame.draw.polygon(image, color, [head, left, right, head], 0)
+        image = Image.new("RGB", (_size, _size))
+        draw = ImageDraw.Draw(image)
+        draw.line([head, tail], fill="white", width=3)
+        draw.polygon([head, left, right, head], fill="white")
+
+        # resize
+        image = image.resize((size, size), Image.LANCZOS)
+
+        # convert pygame image
+        image = pygame.image.fromstring(image.tobytes(), image.size,
+                                        image.mode)
         return image
 
     @staticmethod
