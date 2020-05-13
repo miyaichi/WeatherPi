@@ -300,8 +300,8 @@ class Utils:
 
         image = Image.new("RGB", (_size, _size))
         draw = ImageDraw.Draw(image)
-        draw.line([head, tail], fill="white", width=3)
-        draw.polygon([head, left, right, head], fill="white")
+        draw.line([head, tail], fill="white", width=4)
+        draw.polygon([head, left, right], fill="white")
 
         # resize
         image = image.resize((size, size), Image.LANCZOS)
