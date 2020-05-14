@@ -294,7 +294,7 @@ class Wind(WeatherModule):
         if weather is None or not updated:
             return
 
-        daily = weather["daily"][0]
+        daily = weather["current"]
         wind_speed = daily["wind_speed"]
         wind_deg = daily["wind_deg"]
 

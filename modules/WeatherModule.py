@@ -83,7 +83,7 @@ class Utils:
         """
         Format speed value to text
         """
-        return ("{}km/h" if units == "metric" else "{}mi/h").format(value)
+        return ("{}m/s" if units == "metric" else "{}mi/s").format(value)
 
     @staticmethod
     def temperature_text(value, units):
@@ -182,8 +182,8 @@ class Utils:
         """Return wind bearig text
         """
         bearing = [
-            "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "S", "SSW", "SW", "WSW",
-            "W", "WNW", "NW", "NNW", "N"
+            "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW",
+            "WSW", "W", "WNW", "NW", "NNW", "N"
         ]
         text = bearing[int(angle / 22.5)]
         return _(text)
@@ -237,14 +237,14 @@ class Utils:
     def moon_icon(age, size):
         """Create a moon phase image
         """
-        image = pygame.Surface((size, size))
-        image.fill(pygame.Color("black"))
-        image.set_colorkey(pygame.Color("black"))
-        radius = int((size - 1) / 2)
+        _size = 200
+        radius = int(_size / 2)
+
+        image = Image.new("RGB", (_size + 2, _size + 2))
+        draw = ImageDraw.Draw(image)
 
         # draw full moon
-        pygame.draw.circle(image, pygame.Color("white"), (radius, radius),
-                           radius)
+        draw.ellipse([(1, 1), (_size, _size)], fill="white")
 
         # draw shadow
         theta = age / 14.765 * math.pi
@@ -254,18 +254,21 @@ class Utils:
             x = radius * math.sin(alpha)
             length = radius * math.cos(theta) * math.sin(alpha)
             if age < 15:
-                start = (radius - x, radius + y)
-                end = (radius + length, radius + y)
+                start = (radius - x + 1, radius + y + 1)
+                end = (radius + length + 1, radius + y + 1)
             else:
-                start = (radius - length, radius + y)
-                end = (radius + x, radius + y)
-            pygame.draw.line(image, pygame.Color("dimgray"), start, end)
+                start = (radius - length + 1, radius + y + 1)
+                end = (radius + x + 1, radius + y + 1)
+            draw.line((start, end), fill="dimgray")
             sum_x += 2 * x
             sum_length += end[0] - start[0]
 
-        # sharpening the edge of the moon
-        pygame.gfxdraw.aacircle(image, radius, radius, radius,
-                                pygame.Color("black"))
+        # resize
+        image = image.resize((size, size), Image.LANCZOS)
+
+        # convert pygame image
+        image = pygame.image.fromstring(image.tobytes(), image.size,
+                                        image.mode)
         logging.info("moon phase age: %s parcentage: %s", age,
                      round(100 - (sum_length / sum_x) * 100, 1))
         return image
@@ -275,13 +278,13 @@ class Utils:
     def wind_arrow_icon(wind_deg, size):
         """Create a wind direction allow image
         """
-        _size = 100
+        _size = 200
         color = pygame.Color("White")
         width = 0.15 * _size  # arrowhead width
         height = 0.25 * _size  # arrowhead height
 
         radius = _size / 2
-        angle = (90 - wind_deg) % 180
+        angle = 270 - wind_deg
         theta = angle / 360 * math.pi * 2
 
         tail = (radius + radius * math.cos(theta),
