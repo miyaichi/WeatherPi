@@ -284,7 +284,7 @@ class Utils:
         height = 0.25 * _size  # arrowhead height
 
         radius = _size / 2
-        angle = 270 - wind_deg
+        angle = 90 - wind_deg
         theta = angle / 360 * math.pi * 2
 
         tail = (radius + radius * math.cos(theta),
