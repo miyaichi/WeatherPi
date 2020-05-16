@@ -59,50 +59,43 @@ class Utils:
 
     @staticmethod
     def strftime(timestamp, fmt):
-        """
-        Format unix timestamp to text.
+        """Format unix timestamp to text.
         """
         return datetime.datetime.fromtimestamp(int(timestamp)).strftime(fmt)
 
     @staticmethod
     def percentage_text(value):
-        """
-        Format percentega value to text.
+        """Format percentega value to text.
         """
         return "{}%".format(value)
 
     @staticmethod
     def pressure_text(value):
-        """
-        Format pressure value to text.
+        """Format pressure value to text.
         """
         return "{}pa".format(value)
 
     @staticmethod
     def speed_text(value, units):
-        """
-        Format speed value to text
+        """Format speed value to text
         """
         return ("{}m/s" if units == "metric" else "{}mi/s").format(value)
 
     @staticmethod
     def temperature_text(value, units):
-        """
-        Format temperature value to text
+        """Format temperature value to text
         """
         return ("{}°c" if units == "metric" else "{}°f").format(value)
 
     @staticmethod
     def color(name):
-        """
-        Convert Color name to RGB value
+        """Convert Color name to RGBA value
         """
         return pygame.Color(name)[:3]
 
     @staticmethod
     def heat_index(f, h):
-        """
-        Calculate heat index from temperature and humidity
+        """Calculate heat index from temperature and humidity
         """
         if f < 80:
             return f
@@ -114,29 +107,25 @@ class Utils:
 
     @staticmethod
     def celsius(value):
-        """
-        Convert fahrenheit to celsius
+        """Convert fahrenheit to celsius
         """
         return (value - 32.0) * 0.555556
 
     @staticmethod
     def fahrenheit(value):
-        """
-        Convert celsius to fahrenheit
+        """Convert celsius to fahrenheit
         """
         return (value * 1.8) + 32.0
 
     @staticmethod
     def kilometer(value):
-        """
-        Convert mile to kilometer
+        """Convert mile to kilometer
         """
         return value * 1.609344
 
     @staticmethod
     def heat_color(temperature, humidity, units):
-        """
-        Return heat index color
+        """Return heat index color
         """
 
         def gradation(color_a, color_b, val_a, val_b, val_x):
@@ -162,8 +151,7 @@ class Utils:
 
     @staticmethod
     def uv_color(uv_index):
-        """
-        Return UV index color
+        """Return UV index color
         """
         if uv_index < 3:
             color = "green"
@@ -207,7 +195,7 @@ class Utils:
                 # get icons from local folder
                 image = Image.open(file)
             else:
-                # get icons from OpwnWeather
+                # get icons from OpenWeather
                 response = requests.get(
                     "http://openweathermap.org/img/wn/{}@2x.png".format(name))
                 response.raise_for_status()
@@ -237,10 +225,10 @@ class Utils:
     def moon_icon(age, size):
         """Create a moon phase image
         """
-        _size = 200
+        _size = 200  # Create a large image and resize it
         radius = int(_size / 2)
 
-        image = Image.new("RGB", (_size + 2, _size + 2))
+        image = Image.new("RGBA", (_size + 2, _size + 2))
         draw = ImageDraw.Draw(image)
 
         # draw full moon
@@ -269,6 +257,7 @@ class Utils:
         # convert pygame image
         image = pygame.image.fromstring(image.tobytes(), image.size,
                                         image.mode)
+
         logging.info("moon phase age: %s parcentage: %s", age,
                      round(100 - (sum_length / sum_x) * 100, 1))
         return image
@@ -278,7 +267,7 @@ class Utils:
     def wind_arrow_icon(wind_deg, size):
         """Create a wind direction allow image
         """
-        _size = 200
+        _size = 200  # Create a large image and resize it
         color = pygame.Color("White")
         width = 0.15 * _size  # arrowhead width
         height = 0.25 * _size  # arrowhead height
@@ -301,7 +290,7 @@ class Utils:
         right = (head[0] + unit_vector[1] * width - unit_vector[0] * height,
                  head[1] - unit_vector[0] * width - unit_vector[1] * height)
 
-        image = Image.new("RGB", (_size, _size))
+        image = Image.new("RGBA", (_size, _size))
         draw = ImageDraw.Draw(image)
         draw.line([head, tail], fill="white", width=4)
         draw.polygon([head, left, right], fill="white")
@@ -312,6 +301,8 @@ class Utils:
         # convert pygame image
         image = pygame.image.fromstring(image.tobytes(), image.size,
                                         image.mode)
+
+        logging.info("wind degree: %s", wind_deg)
         return image
 
     @staticmethod
@@ -330,8 +321,7 @@ class Utils:
 
     @staticmethod
     def restart():
-        """
-        send system restart event
+        """Send system restart event
         """
         RESTART = pygame.USEREVENT + 3
         pygame.event.post(pygame.event.Event(RESTART))
@@ -371,16 +361,14 @@ class WeatherModule:
         screen.blit(self.surface, (self.rect.left, self.rect.top))
 
     def text_size(self, text, size, *, bold=False):
-        """
-        determine the amount of space needed to render text
+        """Determine the amount of space needed to render text
         """
         if not text:
             return (0, 0)
         return self.font(size, bold).size(text)
 
     def text_warp(self, text, line_width, size, *, bold=False, max_lines=0):
-        """
-        Text wrapping
+        """Text wrapping
         """
         font = self.font(size, bold)
         lines = []
@@ -403,8 +391,7 @@ class WeatherModule:
         return lines
 
     def font(self, size, bold):
-        """
-        create a new Font object
+        """Create a new Font object
         """
         name = self.fonts["name"]
         if isinstance(size, str):
@@ -432,7 +419,7 @@ class WeatherModule:
         size:
             font size. ["small", "medium", "large"]
         color:
-            color name or RGB color tuple
+            color name or RGBA color tuple
         bold:
             bold flag.
         align:
