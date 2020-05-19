@@ -1,4 +1,6 @@
 # pylint: disable=invalid-name, broad-except
+"""Local IP Address module
+"""
 
 import logging
 import socket

@@ -15,11 +15,11 @@ Weather Station for Raspberry Pi and Small LCDs
 
 ![Front View](https://user-images.githubusercontent.com/129797/56935584-e8348580-6b2c-11e9-940a-002c280885bd.png)
 
-<img width="480" alt="480x320 en" src="https://user-images.githubusercontent.com/55722703/78542390-138e1d00-7832-11ea-85d0-97016a827f41.png">
+<img width="480" alt="480x320 en" src="https://user-images.githubusercontent.com/129797/82272396-76d4a880-99b5-11ea-981c-7afc8e6df05d.png">
 
 fig: 480x320 en
 
-<img width="240" alt="240x320 en" src="https://user-images.githubusercontent.com/129797/78632595-64f1e700-78da-11ea-8000-41086a8c2594.png">
+<img width="240" alt="240x320 en" src="https://user-images.githubusercontent.com/129797/82272398-789e6c00-99b5-11ea-9065-14d34c89c5af.png">
 
 fig: 240x320 en
 
@@ -161,11 +161,11 @@ To change the icons, place the following 18 icons in the icons folder:
 You can change the display language of dates and information.  
 (日付と情報の表示言語を変更することができます。)
 
-<img width="480" alt="480x320 ja" src="https://user-images.githubusercontent.com/55722703/78542573-53ed9b00-7832-11ea-80c7-8b30fa0367f1.png">
+<img width="480" alt="480x320 ja" src="https://user-images.githubusercontent.com/129797/82272445-9b308500-99b5-11ea-86bb-f590bd726338.png">
 
 fig 480x320 ja
 
-<img width="240" alt="240x320 ja" src="https://user-images.githubusercontent.com/129797/78632623-79ce7a80-78da-11ea-8cb2-0de0656f017e.png">
+<img width="240" alt="240x320 ja" src="https://user-images.githubusercontent.com/129797/82272447-9d92df00-99b5-11ea-8e67-c972453e346e.png">
 
 fig 240x320 ja
 

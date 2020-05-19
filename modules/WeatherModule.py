@@ -11,9 +11,7 @@ import sys
 from functools import lru_cache
 import requests
 import pygame
-import pygame.gfxdraw
-from PIL import Image
-from PIL import ImageDraw
+from PIL import Image, ImageDraw
 
 
 class Utils:
@@ -268,7 +266,6 @@ class Utils:
         """Create a wind direction allow image
         """
         _size = 200  # Create a large image and resize it
-        color = pygame.Color("White")
         width = 0.15 * _size  # arrowhead width
         height = 0.25 * _size  # arrowhead height
 
