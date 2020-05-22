@@ -126,7 +126,7 @@ def main():
                              address)
 
         # start weather forecast thread
-        timer_thread = RepeatedTimer(300, weather_forecast, [
+        timer_thread = RepeatedTimer(600, weather_forecast, [
             config["openweather_appid"], config["latitude"],
             config["longitude"], language, config["units"]
         ])
