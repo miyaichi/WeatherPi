@@ -43,7 +43,7 @@ class LocalAddress(WeatherModule):
                     break
             self.draw_text(message, (0, 0),
                            size,
-                           "whilte",
+                           "white",
                            bold=True,
                            align="center")
         self.update_screen(screen)
