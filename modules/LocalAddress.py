@@ -4,7 +4,7 @@
 
 import logging
 import socket
-from modules.WeatherModule import WeatherModule
+from modules.WeatherModule import WeatherModule, Utils
 
 
 def get_local_address():
@@ -26,13 +26,14 @@ class LocalAddress(WeatherModule):
 
     def __init__(self, fonts, location, language, units, config):
         super().__init__(fonts, location, language, units, config)
-        self.local_address = get_local_address()
+        self.retries = 0
+        self.max_retries = 10
 
     def draw(self, screen, weather, updated):
         if weather is None or not updated:
             return
 
-        message = self.local_address
+        message = get_local_address()
 
         self.clear_surface()
         if message:
@@ -46,4 +47,8 @@ class LocalAddress(WeatherModule):
                            "white",
                            bold=True,
                            align="center")
+        else:
+            self.retries += 1
+            if self.retries > self.max_retries:
+                Utils.reboot()
         self.update_screen(screen)

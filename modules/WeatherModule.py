@@ -323,6 +323,13 @@ class Utils:
         RESTART = pygame.USEREVENT + 3
         pygame.event.post(pygame.event.Event(RESTART))
 
+    @staticmethod
+    def reboot():
+        """Send system reboot event
+        """
+        RESTART = pygame.USEREVENT + 4
+        pygame.event.post(pygame.event.Event(RESTART))
+
 
 class WeatherModule:
     """Weather Module

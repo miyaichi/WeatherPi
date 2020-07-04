@@ -94,6 +94,9 @@ def main():
     # initialize restart flag
     restart = False
 
+    # initialize reboot flag
+    reboot = False
+
     try:
         # load config file
         file = "/boot/WeatherPi.json"
@@ -154,6 +157,7 @@ def main():
         DISPLAY_SLEEP = pygame.USEREVENT + 1
         DISPLAY_WAKEUP = pygame.USEREVENT + 2
         RESTART = pygame.USEREVENT + 3
+        REBOOT = pygame.USEREVENT + 4
         logging.info("pygame initialized. display:%s screen:%s scale:%s",
                      display.get_size(), screen.get_size(), scale)
 
@@ -212,6 +216,9 @@ def main():
                 elif event.type == RESTART:
                     running = False
                     restart = True
+                elif event.type == REBOOT:
+                    running = False
+                    reboot = True
                 elif event.type == DISPLAY_SLEEP:
                     if display_wakeup:
                         display.fill(pygame.Color("black"))
@@ -238,6 +245,8 @@ def main():
         if restart:
             logging.info("restarting..")
             os.execl(sys.executable, sys.executable, *sys.argv)
+        if reboot:
+            os.system('sudo reboot')
         sys.exit()
 
 
