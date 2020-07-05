@@ -27,7 +27,7 @@ class LocalAddress(WeatherModule):
     def __init__(self, fonts, location, language, units, config):
         super().__init__(fonts, location, language, units, config)
         self.retries = 0
-        self.max_retries = 10
+        self.max_retries = 60
 
     def draw(self, screen, weather, updated):
         if weather is None or not updated:
@@ -49,6 +49,6 @@ class LocalAddress(WeatherModule):
                            align="center")
         else:
             self.retries += 1
-            if self.retries > self.max_retries:
+            if self.max_retries and self.retries > self.max_retries:
                 Utils.reboot()
         self.update_screen(screen)
