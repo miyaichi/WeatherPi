@@ -42,9 +42,6 @@ class LocalAddress(WeatherModule):
             self.seconds_to_reboot = config["seconds_to_reboot"]
 
     def draw(self, screen, weather, updated):
-        if weather is None or not updated:
-            return
-
         message = get_local_address()
         if message:
             self.seconds = 0
