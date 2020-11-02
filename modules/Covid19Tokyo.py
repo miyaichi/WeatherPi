@@ -22,7 +22,6 @@ class Covid19Tokyo(WeatherModule):
       }
      }
     """
-
     def __init__(self, fonts, location, language, units, config):
         super().__init__(fonts, location, language, units, config)
         self.days_ago = config["days_ago"] if "days_ago" in config else 0
@@ -31,13 +30,17 @@ class Covid19Tokyo(WeatherModule):
         if weather is None or not updated:
             return
 
-        # Retrieve the data
-        df = pd.read_csv(("https://stopcovid19.metro.tokyo.lg.jp"
-                          "/data/130001_tokyo_covid19_patients.csv"))
-        df["公表_年月日"] = pd.to_datetime(df["公表_年月日"])
-        df["人数"] = 1
-        new_cases = pd.DataFrame(df.groupby("公表_年月日").sum()["人数"])
-        total_cases = new_cases.cumsum()
+        try:
+            # Retrieve the data
+            df = pd.read_csv(("https://stopcovid19.metro.tokyo.lg.jp"
+                              "/data/130001_tokyo_covid19_patients.csv"))
+            df["公表_年月日"] = pd.to_datetime(df["公表_年月日"])
+            df["人数"] = 1
+            new_cases = pd.DataFrame(df.groupby("公表_年月日").sum()["人数"])
+            total_cases = new_cases.cumsum()
+        except Exception as e:
+            logging.error(e, exc_info=True)
+            return
 
         # Filter the data
         if self.days_ago > 0 and self.days_ago < len(new_cases):
