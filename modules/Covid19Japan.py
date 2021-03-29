@@ -3,6 +3,7 @@
 """
 
 import datetime
+import logging
 import pandas as pd
 from modules.WeatherModule import WeatherModule
 from modules.GraphUtils import GraphUtils

@@ -48,11 +48,12 @@ class LocalAddress(WeatherModule):
         else:
             message = "connection lost"
             self.seconds += 1
+            logging.info("%s: %s (%d)", __class__.__name__, message,
+                         self.seconds)
             if self.seconds_to_reboot and self.seconds > self.seconds_to_reboot:
                 Utils.reboot()
 
         self.clear_surface()
-        logging.info("%s: %s", __class__.__name__, message)
         for size in ("large", "medium", "small"):
             width, height = self.text_size(message, size, bold=True)
             if width <= self.rect.width and height <= self.rect.height:
