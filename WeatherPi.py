@@ -15,11 +15,12 @@ import logging
 import os
 import sys
 import time
-import requests
-import pygame
 
-from modules.BuiltIn import (Alerts, Clock, Location, Weather, WeatherForecast,
-                             SunriseSuset, MoonPhase, Wind)
+import pygame
+import requests
+
+from modules.BuiltIn import (Alerts, Clock, Location, MoonPhase, SunriseSuset,
+                             Weather, WeatherForecast, Wind)
 from modules.RepeatedTimer import RepeatedTimer
 
 
@@ -28,7 +29,7 @@ def weather_forecast(appid, latitude, longitude, language, units):
     """
     try:
         resopnse = requests.get(
-            "https://api.openweathermap.org/data/2.5/onecall" +
+            "https://api.openweathermap.org/data/3.0/onecall" +
             "?appid={}&lat={}&lon={}&lang={}&units={}".format(
                 appid, latitude, longitude, language, units))
         resopnse.raise_for_status()
