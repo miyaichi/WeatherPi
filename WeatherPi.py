@@ -15,12 +15,19 @@ import logging
 import mmap
 import os
 import struct
+import subprocess
 import sys
 import time
 
 import pygame
 import requests
 from PIL import Image
+
+try:
+    import numpy as np
+    _NUMPY_AVAILABLE = True
+except ImportError:
+    _NUMPY_AVAILABLE = False
 
 from modules.BuiltIn import (Alerts, Clock, Location, MoonPhase, SunriseSuset,
                              Weather, WeatherForecast, Wind)
@@ -33,11 +40,12 @@ class FrameBuffer:
     def __init__(self, device, width, height):
         self.width = width
         self.height = height
+        self._cursor_hidden = False
 
-        # Hide the blinking cursor on the framebuffer console
         try:
             with open("/dev/tty1", "wb") as tty:
                 tty.write(b"\033[?25l")
+            self._cursor_hidden = True
         except OSError:
             pass
 
@@ -48,14 +56,18 @@ class FrameBuffer:
         except OSError:
             self.bpp = 16
 
-        self._size = width * height * (self.bpp // 8)
-        self._file = open(device, "r+b")
-        self._mmap = mmap.mmap(self._file.fileno(), self._size)
+        try:
+            self._size = width * height * (self.bpp // 8)
+            self._file = open(device, "r+b")
+            self._mmap = mmap.mmap(self._file.fileno(), self._size)
+        except OSError:
+            self._restore_console()
+            raise
         logging.info("framebuffer %s: %dx%d %dbpp", device, width, height, self.bpp)
 
     def write(self, surface):
         """Convert pygame.Surface to the framebuffer pixel format and write via mmap."""
-        raw = pygame.image.tostring(surface, "RGB")
+        raw = pygame.image.tobytes(surface, "RGB")
         image = Image.frombytes("RGB", (self.width, self.height), raw)
         data = self._to_rgb565(image) if self.bpp == 16 else image.convert("RGBX").tobytes()
         self._mmap.seek(0)
@@ -67,26 +79,34 @@ class FrameBuffer:
         self._mmap.write(b'\x00' * self._size)
 
     def close(self):
-        self._mmap.close()
-        self._file.close()
-        # Restore the cursor
+        self.blank()
+        try:
+            self._mmap.close()
+        finally:
+            self._file.close()
+        self._restore_console()
+
+    def _restore_console(self):
+        """Restore cursor and reset the framebuffer console."""
+        if not self._cursor_hidden:
+            return
         try:
             with open("/dev/tty1", "wb") as tty:
-                tty.write(b"\033[?25h")
+                tty.write(b"\033[?25h\033[H\033[2J")
+            self._cursor_hidden = False
         except OSError:
             pass
 
     @staticmethod
     def _to_rgb565(image):
         """Convert a PIL RGB image to little-endian RGB565 bytes."""
-        try:
-            import numpy as np
+        if _NUMPY_AVAILABLE:
             arr = np.array(image, dtype=np.uint16)
             rgb565 = ((arr[:, :, 0] & 0xF8) << 8) | \
                      ((arr[:, :, 1] & 0xFC) << 3) | \
                      (arr[:, :, 2] >> 3)
             return rgb565.astype('<u2').tobytes()
-        except ImportError:
+        else:
             pixels = list(image.getdata())
             buf = bytearray(len(pixels) * 2)
             for i, (r, g, b) in enumerate(pixels):
@@ -99,12 +119,13 @@ def weather_forecast(appid, latitude, longitude, language, units):
     """get weather forcast data using openweather api
     """
     try:
-        resopnse = requests.get(
+        response = requests.get(
             "https://api.openweathermap.org/data/3.0/onecall" +
             "?appid={}&lat={}&lon={}&lang={}&units={}".format(
-                appid, latitude, longitude, language, units))
-        resopnse.raise_for_status()
-        return resopnse.json()
+                appid, latitude, longitude, language, units),
+            timeout=10)
+        response.raise_for_status()
+        return response.json()
 
     except Exception as e:
         logging.error(e, exc_info=True)
@@ -122,7 +143,8 @@ def geocode(key, language, address, latitude, longitude):
                 "language": language,
                 "latlng": "{},{}".format(latitude, longitude),
                 "key": key
-            })
+            },
+            timeout=10)
         response.raise_for_status()
         data = response.json()
         location = data["results"][0]["geometry"]["location"]
@@ -178,7 +200,7 @@ def main():
         if not os.path.exists(file):
             file = "{}/config.json".format(sys.path[0])
         with open(file, "r") as f:
-            config = json.loads(f.read())
+            config = json.load(f)
         logging.info("%s loaded", file)
 
         # initialize locale, gettext
@@ -215,14 +237,14 @@ def main():
         scale = None
         if use_framebuffer:
             # Headless mode: render to Surface, push pixels to /dev/fb1 via mmap
-            os.putenv("SDL_VIDEODRIVER", "dummy")
+            os.environ["SDL_VIDEODRIVER"] = "dummy"
             pygame.init()
             screen = pygame.Surface(config["display"])
             display = screen
             fb = FrameBuffer(config["SDL_FBDEV"], *config["display"])
         else:
             if "DISPLAY_NO" in config:
-                os.putenv("DISPLAY", config["DISPLAY_NO"])
+                os.environ["DISPLAY"] = config["DISPLAY_NO"]
             pygame.init()
             pygame.mouse.set_visible(False)
             if pygame.display.mode_ok(config["display"]):
@@ -324,7 +346,7 @@ def main():
     finally:
         if args.screenshot:
             if fb:
-                raw = pygame.image.tostring(screen, "RGB")
+                raw = pygame.image.tobytes(screen, "RGB")
                 Image.frombytes("RGB", screen.get_size(), raw).save(args.screenshot)
             else:
                 pygame.image.save(display, args.screenshot)
@@ -339,7 +361,7 @@ def main():
             logging.info("restarting..")
             os.execl(sys.executable, sys.executable, *sys.argv)
         if reboot:
-            os.system('sudo reboot')
+            subprocess.run(["sudo", "reboot"])
         sys.exit()
 
 
