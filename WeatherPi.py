@@ -34,6 +34,13 @@ class FrameBuffer:
         self.width = width
         self.height = height
 
+        # Hide the blinking cursor on the framebuffer console
+        try:
+            with open("/dev/tty1", "wb") as tty:
+                tty.write(b"\033[?25l")
+        except OSError:
+            pass
+
         fb_name = os.path.basename(device)
         try:
             with open("/sys/class/graphics/{}/bits_per_pixel".format(fb_name)) as f:
@@ -62,6 +69,12 @@ class FrameBuffer:
     def close(self):
         self._mmap.close()
         self._file.close()
+        # Restore the cursor
+        try:
+            with open("/dev/tty1", "wb") as tty:
+                tty.write(b"\033[?25h")
+        except OSError:
+            pass
 
     @staticmethod
     def _to_rgb565(image):
