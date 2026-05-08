@@ -12,16 +12,74 @@ import importlib
 import json
 import locale
 import logging
+import mmap
 import os
+import struct
 import sys
 import time
 
 import pygame
 import requests
+from PIL import Image
 
 from modules.BuiltIn import (Alerts, Clock, Location, MoonPhase, SunriseSuset,
                              Weather, WeatherForecast, Wind)
 from modules.RepeatedTimer import RepeatedTimer
+
+
+class FrameBuffer:
+    """Write pygame.Surface directly to a Linux framebuffer device via mmap."""
+
+    def __init__(self, device, width, height):
+        self.width = width
+        self.height = height
+
+        fb_name = os.path.basename(device)
+        try:
+            with open("/sys/class/graphics/{}/bits_per_pixel".format(fb_name)) as f:
+                self.bpp = int(f.read().strip())
+        except OSError:
+            self.bpp = 16
+
+        self._size = width * height * (self.bpp // 8)
+        self._file = open(device, "r+b")
+        self._mmap = mmap.mmap(self._file.fileno(), self._size)
+        logging.info("framebuffer %s: %dx%d %dbpp", device, width, height, self.bpp)
+
+    def write(self, surface):
+        """Convert pygame.Surface to the framebuffer pixel format and write via mmap."""
+        raw = pygame.image.tostring(surface, "RGB")
+        image = Image.frombytes("RGB", (self.width, self.height), raw)
+        data = self._to_rgb565(image) if self.bpp == 16 else image.convert("RGBX").tobytes()
+        self._mmap.seek(0)
+        self._mmap.write(data)
+
+    def blank(self):
+        """Fill the framebuffer with black."""
+        self._mmap.seek(0)
+        self._mmap.write(b'\x00' * self._size)
+
+    def close(self):
+        self._mmap.close()
+        self._file.close()
+
+    @staticmethod
+    def _to_rgb565(image):
+        """Convert a PIL RGB image to little-endian RGB565 bytes."""
+        try:
+            import numpy as np
+            arr = np.array(image, dtype=np.uint16)
+            rgb565 = ((arr[:, :, 0] & 0xF8) << 8) | \
+                     ((arr[:, :, 1] & 0xFC) << 3) | \
+                     (arr[:, :, 2] >> 3)
+            return rgb565.astype('<u2').tobytes()
+        except ImportError:
+            pixels = list(image.getdata())
+            buf = bytearray(len(pixels) * 2)
+            for i, (r, g, b) in enumerate(pixels):
+                struct.pack_into('<H', buf, i * 2,
+                                 ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3))
+            return bytes(buf)
 
 
 def weather_forecast(appid, latitude, longitude, language, units):
@@ -98,6 +156,9 @@ def main():
     # initialize reboot flag
     reboot = False
 
+    # initialize framebuffer
+    fb = None
+
     try:
         # load config file
         file = "/boot/WeatherPi.json"
@@ -137,30 +198,37 @@ def main():
         timer_thread.start()
 
         # initialize pygame
-        if "DISPLAY_NO" in config:
-            os.putenv("DISPLAY", config["DISPLAY_NO"])
-        if "SDL_FBDEV" in config:
-            os.putenv("SDL_FBDEV", config["SDL_FBDEV"])
-        pygame.init()
-        pygame.mouse.set_visible(False)
-        if pygame.display.mode_ok(config["display"]):
-            display = screen = pygame.display.set_mode(config["display"])
-            scale = None
-        else:
-            display = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+        use_framebuffer = "SDL_FBDEV" in config
+        scale = None
+        if use_framebuffer:
+            # Headless mode: render to Surface, push pixels to /dev/fb1 via mmap
+            os.putenv("SDL_VIDEODRIVER", "dummy")
+            pygame.init()
             screen = pygame.Surface(config["display"])
-            display_w, display_h = display.get_size()
-            screen_w, screen_h = screen.get_size()
-            if display_w / screen_w * screen_h <= display_h:
-                scale = (display_w, int(display_w / screen_w * screen_h))
+            display = screen
+            fb = FrameBuffer(config["SDL_FBDEV"], *config["display"])
+        else:
+            if "DISPLAY_NO" in config:
+                os.putenv("DISPLAY", config["DISPLAY_NO"])
+            pygame.init()
+            pygame.mouse.set_visible(False)
+            if pygame.display.mode_ok(config["display"]):
+                display = screen = pygame.display.set_mode(config["display"])
             else:
-                scale = (int(display_h / screen_h * screen_w), display_h)
+                display = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+                screen = pygame.Surface(config["display"])
+                display_w, display_h = display.get_size()
+                screen_w, screen_h = screen.get_size()
+                if display_w / screen_w * screen_h <= display_h:
+                    scale = (display_w, int(display_w / screen_w * screen_h))
+                else:
+                    scale = (int(display_h / screen_h * screen_w), display_h)
         DISPLAY_SLEEP = pygame.USEREVENT + 1
         DISPLAY_WAKEUP = pygame.USEREVENT + 2
         RESTART = pygame.USEREVENT + 3
         REBOOT = pygame.USEREVENT + 4
-        logging.info("pygame initialized. display:%s screen:%s scale:%s",
-                     display.get_size(), screen.get_size(), scale)
+        logging.info("pygame initialized. screen:%s fb:%s scale:%s",
+                     screen.get_size(), config.get("SDL_FBDEV"), scale)
 
         # load modules
         location = {
@@ -205,10 +273,12 @@ def main():
 
             # update display
             if display_wakeup:
-                if scale:
-                    # fit to display
-                    display.blit(pygame.transform.scale(screen, scale), (0, 0))
-                pygame.display.flip()
+                if fb:
+                    fb.write(screen)
+                else:
+                    if scale:
+                        display.blit(pygame.transform.scale(screen, scale), (0, 0))
+                    pygame.display.flip()
 
             # event check
             for event in pygame.event.get():
@@ -222,8 +292,11 @@ def main():
                     reboot = True
                 elif event.type == DISPLAY_SLEEP:
                     if display_wakeup:
-                        display.fill(pygame.Color("black"))
-                        pygame.display.flip()
+                        if fb:
+                            fb.blank()
+                        else:
+                            display.fill(pygame.Color("black"))
+                            pygame.display.flip()
                         display_wakeup = False
                 elif event.type == DISPLAY_WAKEUP:
                     if not display_wakeup:
@@ -237,7 +310,13 @@ def main():
 
     finally:
         if args.screenshot:
-            pygame.image.save(display, args.screenshot)
+            if fb:
+                raw = pygame.image.tostring(screen, "RGB")
+                Image.frombytes("RGB", screen.get_size(), raw).save(args.screenshot)
+            else:
+                pygame.image.save(display, args.screenshot)
+        if fb:
+            fb.close()
         if timer_thread:
             timer_thread.quit()
         for module in modules:

@@ -35,6 +35,8 @@ fig: 240x320 en
 - i18n (internationalization) support  
   (ロケールの変更や表示文字列の翻訳が可能です)  
   [I18n](#I18n)
+- Direct framebuffer rendering via mmap  
+  `SDL_FBDEV` を指定すると SDL の表示ドライバを使わずに pygame の描画結果を Pillow 画像に変換し `/dev/fb1` へ mmap で直接書き込みます。16bpp (RGB565) と 32bpp (RGBX) に対応。X11/Wayland 環境不要で動作します。
 
 ## Installation
 
@@ -43,7 +45,7 @@ fig: 240x320 en
 ```bash
 sudo apt-get update -y && sudo apt-get upgrade -y
 sudo apt-get install rng-tools gettext -y
-sudo apt-get install python3-pygame python3-pillow -y
+sudo apt-get install python3-pygame python3-pillow python3-numpy -y
 ```
 
 ### install WeatherPi
@@ -75,7 +77,8 @@ cp example.480x320.config.json config.json
 | latitude <br> longitude | required |                                          | The latitude and longitude of a location (in decimal degrees). Positive is east, negative is west.                 |
 | locale                  | required | en_US.UTF-8                              | Locale. Specify the display language of time and weather information.                                              |
 | units                   | required | metric                                   | Unit of weather 　 information. (imperial: Fahrenheit, metric: Celsius)                                            |
-| SDL_FBDEV               | required | /dev/fb1                                 | Frame buffer device to use in the linux fbcon driver, instead of /dev/fb0.                                         |
+| SDL_FBDEV               | optional | /dev/fb1                                 | Framebuffer device for direct mmap rendering (e.g. `/dev/fb1`). When specified, pygame runs headless and pixels are written directly to the device via mmap, bypassing SDL's display driver. Supports 16bpp (RGB565) and 32bpp (RGBX). Omit this key to use a standard pygame window instead. |
+| DISPLAY_NO              | optional |                                          | X11 display number (e.g. `:0`). Used only when `SDL_FBDEV` is not set.                                            |
 | display                 | required |                                          | Display size. [Width, Height]                                                                                      |
 | fonts.name              | required | Sans                                     | Font name.                                                                                                         |
 | fonts.size              | required | {"large": 30, "medium": 22, "small": 14} | Font size list. (Style name and point)                                                                             |
